@@ -17,6 +17,7 @@ public class HomeController : Controller
         _logger = logger;
         _personRepository = personRepository;
         _addressRepository = addressRepository;
+
     }
 
     public async Task<IActionResult> Index()
@@ -56,4 +57,12 @@ public class HomeController : Controller
         var model = await UploadViewModel.CreateAsync();
         return View(model);
     }
+
+    public async Task<IActionResult> DeserializeJsonResult()
+    {
+        return RedirectToAction("Upload");
+    }
+
+
+
 }
