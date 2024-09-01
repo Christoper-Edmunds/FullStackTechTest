@@ -25,7 +25,6 @@ public class UploadRepository : IUploadRepository
         Console.WriteLine($"city: {importData?.city}");
         Console.WriteLine($"postcode: {importData?.postcode}");
 
-        var deserializedjsonfile = importData;
 
     }
 

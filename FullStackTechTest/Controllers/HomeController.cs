@@ -11,13 +11,14 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly IPersonRepository _personRepository;
     private readonly IAddressRepository _addressRepository;
+    private readonly IUploadRepository _uploadRepository;
 
-    public HomeController(ILogger<HomeController> logger, IPersonRepository personRepository, IAddressRepository addressRepository)
+    public HomeController(ILogger<HomeController> logger, IPersonRepository personRepository, IAddressRepository addressRepository, IUploadRepository uploadRepository)
     {
         _logger = logger;
         _personRepository = personRepository;
         _addressRepository = addressRepository;
-
+        _uploadRepository = uploadRepository;
     }
 
     public async Task<IActionResult> Index()
@@ -60,6 +61,8 @@ public class HomeController : Controller
 
     public async Task<IActionResult> DeserializeJsonResult()
     {
+        await _uploadRepository.DeserializeJsonResult();
+
         return RedirectToAction("Upload");
     }
 
