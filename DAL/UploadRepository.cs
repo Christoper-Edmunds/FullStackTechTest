@@ -4,6 +4,7 @@ using System.Text;
 using Models;
 using MySql.Data.MySqlClient;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 
 namespace DAL;
@@ -12,42 +13,50 @@ public class UploadRepository : IUploadRepository
 {
     public async Task DeserializeJsonResult()
     {
-        //C:\Users\crris\source\repos\FullStackTechTest
-        string fileName = "@\"C:\\Users\\crris\\source\\repos\\FullStackTechTest\\data.json\"";
+        //"C:\Users\crris\source\repos\FullStackTechTest\data.json"
+        string fileName = @"C:\Users\crris\source\repos\FullStackTechTest\data.json";
         using FileStream openStream = File.OpenRead(fileName);
         ImportData? importData =
             await JsonSerializer.DeserializeAsync<ImportData>(openStream);
 
-        Console.WriteLine($"firstName: {importData?.firstName}");
-        Console.WriteLine($"lastName: {importData?.lastName}");
-        Console.WriteLine($"GMC: {importData?.GMC}");
-        Console.WriteLine($"line1: {importData?.line1}");
-        Console.WriteLine($"city: {importData?.city}");
-        Console.WriteLine($"postcode: {importData?.postcode}");
+        //Console.WriteLine($"firstName: {importData?.firstName}");
+        //Console.WriteLine($"lastName: {importData?.lastName}");
+        //Console.WriteLine($"GMC: {importData?.GMC}");
+        //Console.WriteLine($"line1: {importData?.line1}");
+        //Console.WriteLine($"city: {importData?.city}");
+        //Console.WriteLine($"postcode: {importData?.postcode}");
 
 
     }
 
 
-    public class ImportData
-    {
-        public string firstName { get; set; }
-        public string lastName { get; set; }
-        public int GMC { get; set; }
-        public string line1 { get; set; }
-        public string city { get; set; }
-        public string postcode { get; set; }
+public partial class ImportData
+{
+    [JsonPropertyName("firstName")]
+    public string FirstName { get; set; }
 
-        //{
-        // "firstName": "LANNA",
-        // "lastName": "Southerns",
-        // "GMC": 3875914,
-        // "address": [
-        //     {
-        //         "line1": "Belmont Cottage",
-        //         "city": "Grizebeck",
-        //         "postcode": "LA17 7XH"
-        //     }
-        // ]
-    }
+    [JsonPropertyName("lastName")]
+    public string LastName { get; set; }
+
+    [JsonPropertyName("GMC")]
+    public long Gmc { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("address")]
+    public Address[] Address { get; set; }
+}
+
+public partial class Address
+{
+    [JsonPropertyName("line1")]
+    public string Line1 { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("city")]
+    public string City { get; set; }
+
+    [JsonPropertyName("postcode")]
+    public string Postcode { get; set; }
+}
+
 }
