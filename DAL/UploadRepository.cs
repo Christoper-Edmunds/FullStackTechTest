@@ -10,7 +10,7 @@ using System;
 
 
 namespace DAL;
-
+// TODO. ADD IN VALIDATION FOR NULL ADDRESSES. CHECK YOUR DOCS
 public class UploadRepository : IUploadRepository
 {
     public async Task DeserializeJsonResult()
@@ -70,7 +70,7 @@ public class UploadRepository : IUploadRepository
         sql.Append("VALUES (");
         sql.Append("@PersonId, ");
         sql.Append("@Line1, ");
-        sql.Append("@City");
+        sql.Append("@City, ");
         sql.Append("@Postcode");
         sql.Append(");");
 
