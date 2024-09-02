@@ -5,6 +5,8 @@ using Models;
 using MySql.Data.MySqlClient;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static DAL.UploadRepository;
+using System;
 
 
 namespace DAL;
@@ -18,16 +20,37 @@ public class UploadRepository : IUploadRepository
 
         ImportData[] importData = JsonSerializer.Deserialize<ImportData[]>(openStream);
 
-        foreach(var individualperson in importData)
+        foreach(var individualPerson in importData)
         {
-            Console.WriteLine(individualperson.FirstName);
+            //Console.WriteLine(individualPerson.FirstName);
+            SaveDataToPersonTable(individualPerson);
         }
 
     }
 
-    public async Task SaveDataToPersonTable()
+    public async Task SaveDataToPersonTable(ImportData individualPerson)
     {
+        var sql = new StringBuilder();
+        sql.AppendLine("INSERT INTO people (FirstName, LastName, GMC)");
+        sql.Append("VALUES (");
+        sql.Append("@firstName, ");
+        sql.Append("@lastName, ");
+        sql.Append("@Gmc");
+        sql.Append(");");
 
+        await using (var connection = new MySqlConnection(Config.DbConnectionString))
+        {
+            await connection.OpenAsync();
+
+            var command = new MySqlCommand(sql.ToString(), connection);
+            command.Parameters.AddWithValue("@firstName", individualPerson.FirstName);
+            command.Parameters.AddWithValue("@lastName", individualPerson.LastName);
+            command.Parameters.AddWithValue("@Gmc", individualPerson.Gmc);
+
+            Console.WriteLine(sql.ToString());
+
+            await command.ExecuteNonQueryAsync();
+        }
     }
 
     public async Task SaveDataToAddressTable()

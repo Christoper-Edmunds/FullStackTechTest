@@ -74,6 +74,8 @@ public class PersonRepository : IPersonRepository
             command.Parameters.AddWithValue("gmc", person.GMC);
             command.Parameters.AddWithValue("personId", person.Id);
 
+            Console.WriteLine(sql.ToString());
+
             await command.ExecuteNonQueryAsync();
         }
     }
