@@ -22,14 +22,15 @@ public class UploadRepository : IUploadRepository
 
         foreach(var individualPerson in importData)
         {
-            //Console.WriteLine(individualPerson.FirstName);
-            SaveDataToPersonTable(individualPerson);
+            await SaveDataToPersonTable(individualPerson);
         }
 
     }
 
-    public async Task SaveDataToPersonTable(ImportData individualPerson)
+    private async Task SaveDataToPersonTable(ImportData individualPerson)
     {
+
+        //---- save person to database
         var sql = new StringBuilder();
         sql.AppendLine("INSERT INTO people (FirstName, LastName, GMC)");
         sql.Append("VALUES (");
@@ -47,19 +48,48 @@ public class UploadRepository : IUploadRepository
             command.Parameters.AddWithValue("@lastName", individualPerson.LastName);
             command.Parameters.AddWithValue("@Gmc", individualPerson.Gmc);
 
-            Console.WriteLine(sql.ToString());
+            await command.ExecuteNonQueryAsync();
+        }
+
+        //--- grab record ID from person saved
+        var idOfPersonLastSaved = 0;
+
+        sql = new StringBuilder();
+        sql.AppendLine("SELECT LAST_INSERT_ID();");
+        await using (var connection = new MySqlConnection(Config.DbConnectionString))
+        {
+            await connection.OpenAsync();
+            var command = new MySqlCommand(sql.ToString(), connection);
+
+            idOfPersonLastSaved = Convert.ToInt32(await command.ExecuteScalarAsync());
+        }
+
+        //---- save address to database
+        sql = new StringBuilder();
+        sql.AppendLine("INSERT INTO addresses (PersonId, Line1, City, Postcode)");
+        sql.Append("VALUES (");
+        sql.Append("@PersonId, ");
+        sql.Append("@Line1, ");
+        sql.Append("@City");
+        sql.Append("@Postcode");
+        sql.Append(");");
+
+        await using (var connection = new MySqlConnection(Config.DbConnectionString))
+        {
+            await connection.OpenAsync();
+
+            var command = new MySqlCommand(sql.ToString(), connection);
+            command.Parameters.AddWithValue("@PersonId", idOfPersonLastSaved);
+            command.Parameters.AddWithValue("@Line1", individualPerson.Address[0].Line1);
+            command.Parameters.AddWithValue("@City", individualPerson.Address[0].City);
+            command.Parameters.AddWithValue("@Postcode", individualPerson.Address[0].Postcode);
 
             await command.ExecuteNonQueryAsync();
         }
-    }
-
-    public async Task SaveDataToAddressTable()
-    {
 
     }
 
-
-    public partial class ImportData
+    public partial class ImportData //Move me to models
     {
         [JsonPropertyName("firstName")]
         public string FirstName { get; set; }
@@ -75,8 +105,11 @@ public class UploadRepository : IUploadRepository
         public Address[] Address { get; set; }
     }
 
-    public partial class Address
+    public partial class Address //Move me to models 
     {
+        
+        public string PersonID { get; set; }
+
         [JsonPropertyName("line1")]
         public string Line1 { get; set; }
 
