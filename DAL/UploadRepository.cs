@@ -13,24 +13,25 @@ public class UploadRepository : IUploadRepository
 {
     public async Task DeserializeJsonResult()
     {
-        //"C:\Users\crris\source\repos\FullStackTechTest\data.json"
         string fileName = @"C:\Users\crris\source\repos\FullStackTechTest\data.json";
         using FileStream openStream = File.OpenRead(fileName);
-        //ImportData? importData =
-        //    await JsonSerializer.DeserializeAsync<ImportData>(openStream);
 
-        //ImportData[] FromJson(string fileName) => JsonSerializer.Deserialize<ImportData[]>(fileName);
         ImportData[] importData = JsonSerializer.Deserialize<ImportData[]>(openStream);
 
+        foreach(var individualperson in importData)
+        {
+            Console.WriteLine(individualperson.FirstName);
+        }
 
-        //foreach(var individualperson in importData.)
-        //Console.WriteLine($"firstName: {importData?.FirstName}");
-        //Console.WriteLine($"lastName: {importData?.lastName}");
-        //Console.WriteLine($"GMC: {importData?.GMC}");
-        //Console.WriteLine($"line1: {importData?.line1}");
-        //Console.WriteLine($"city: {importData?.city}");
-        //Console.WriteLine($"postcode: {importData?.postcode}");
+    }
 
+    public async Task SaveDataToPersonTable()
+    {
+
+    }
+
+    public async Task SaveDataToAddressTable()
+    {
 
     }
 
