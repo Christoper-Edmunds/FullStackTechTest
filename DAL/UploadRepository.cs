@@ -30,61 +30,52 @@ public class UploadRepository : IUploadRepository
     private async Task SaveDataToPersonTable(ImportData individualPerson)
     {
 
-        //---- save person to database
-        var sql = new StringBuilder();
-        sql.AppendLine("INSERT INTO people (FirstName, LastName, GMC)");
-        sql.Append("VALUES (");
-        sql.Append("@firstName, ");
-        sql.Append("@lastName, ");
-        sql.Append("@Gmc");
-        sql.Append(");");
-
         await using (var connection = new MySqlConnection(Config.DbConnectionString))
         {
             await connection.OpenAsync();
+            using var transaction = await connection.BeginTransactionAsync();
 
-            var command = new MySqlCommand(sql.ToString(), connection);
-            command.Parameters.AddWithValue("@firstName", individualPerson.FirstName);
-            command.Parameters.AddWithValue("@lastName", individualPerson.LastName);
-            command.Parameters.AddWithValue("@Gmc", individualPerson.Gmc);
+            try
+            {
+                var insertPersonSql = @"
+                INSERT INTO people (FirstName, LastName, GMC)
+                VALUES (@firstName, @lastName, @Gmc);
+                SELECT LAST_INSERT_ID();";
 
-            await command.ExecuteNonQueryAsync();
-        }
+                var personCommand = new MySqlCommand(insertPersonSql, connection, transaction);
+                personCommand.Parameters.AddWithValue("@firstName", individualPerson.FirstName);
+                personCommand.Parameters.AddWithValue("@lastName", individualPerson.LastName);
+                personCommand.Parameters.AddWithValue("@Gmc", individualPerson.Gmc);
+                var idOfPersonLastSaved = Convert.ToInt32(await personCommand.ExecuteScalarAsync());
 
-        //--- grab record ID from person saved
-        var idOfPersonLastSaved = 0;
+                if (individualPerson.Address != null && individualPerson.Address.Length > 0)
+                {
+                    var insertAddressSql = @"
+                    INSERT INTO addresses (PersonId, Line1, City, Postcode)
+                    VALUES (@PersonId, @Line1, @City, @Postcode);";
 
-        sql = new StringBuilder();
-        sql.AppendLine("SELECT LAST_INSERT_ID();");
-        await using (var connection = new MySqlConnection(Config.DbConnectionString))
-        {
-            await connection.OpenAsync();
-            var command = new MySqlCommand(sql.ToString(), connection);
+                    foreach (var address in individualPerson.Address)
+                    {
+                        var addressCommand = new MySqlCommand(insertAddressSql, connection, transaction);
+                        addressCommand.Parameters.AddWithValue("@PersonId", idOfPersonLastSaved);
+                        addressCommand.Parameters.AddWithValue("@Line1", address.Line1 ?? (object)DBNull.Value);
+                        addressCommand.Parameters.AddWithValue("@City", address.City ?? (object)DBNull.Value);
+                        addressCommand.Parameters.AddWithValue("@Postcode", address.Postcode ?? (object)DBNull.Value);
+                        await addressCommand.ExecuteNonQueryAsync();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"No address provided for {individualPerson.FirstName} {individualPerson.LastName}");
+                }
 
-            idOfPersonLastSaved = Convert.ToInt32(await command.ExecuteScalarAsync());
-        }
-
-        //---- save address to database
-        sql = new StringBuilder();
-        sql.AppendLine("INSERT INTO addresses (PersonId, Line1, City, Postcode)");
-        sql.Append("VALUES (");
-        sql.Append("@PersonId, ");
-        sql.Append("@Line1, ");
-        sql.Append("@City, ");
-        sql.Append("@Postcode");
-        sql.Append(");");
-
-        await using (var connection = new MySqlConnection(Config.DbConnectionString))
-        {
-            await connection.OpenAsync();
-
-            var command = new MySqlCommand(sql.ToString(), connection);
-            command.Parameters.AddWithValue("@PersonId", idOfPersonLastSaved);
-            command.Parameters.AddWithValue("@Line1", individualPerson.Address[0].Line1);
-            command.Parameters.AddWithValue("@City", individualPerson.Address[0].City);
-            command.Parameters.AddWithValue("@Postcode", individualPerson.Address[0].Postcode);
-
-            await command.ExecuteNonQueryAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
         }
 
     }
