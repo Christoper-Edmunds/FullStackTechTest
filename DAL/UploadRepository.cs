@@ -10,7 +10,6 @@ using System;
 
 
 namespace DAL;
-// TODO. ADD IN VALIDATION FOR NULL ADDRESSES. CHECK YOUR DOCS
 public class UploadRepository : IUploadRepository
 {
     public async Task DeserializeJsonResult()
@@ -20,14 +19,39 @@ public class UploadRepository : IUploadRepository
 
         ImportData[] importData = JsonSerializer.Deserialize<ImportData[]>(openStream);
 
-        foreach(var individualPerson in importData)
+        foreach (var individualPerson in importData)
         {
-            await SaveDataToPersonTable(individualPerson);
+            if (!await DoesPersonExist(individualPerson))
+            {
+                await SaveDataToTables(individualPerson);
+            }
+            else
+            {
+                Console.WriteLine($"Person {individualPerson.FirstName} {individualPerson.LastName} with GMC {individualPerson.Gmc} already exists.");
+            }
         }
 
     }
+    private async Task<bool> DoesPersonExist(ImportData individualPerson)
+    {
+        const string checkPersonSql = @"
+                SELECT COUNT(1)
+                FROM people
+                WHERE GMC = @Gmc AND FirstName = @firstName AND LastName = @lastName";
 
-    private async Task SaveDataToPersonTable(ImportData individualPerson)
+        await using var connection = new MySqlConnection(Config.DbConnectionString);
+        await connection.OpenAsync();
+
+        using var command = new MySqlCommand(checkPersonSql, connection);
+        command.Parameters.AddWithValue("@Gmc", individualPerson.Gmc);
+        command.Parameters.AddWithValue("@firstName", individualPerson.FirstName);
+        command.Parameters.AddWithValue("@lastName", individualPerson.LastName);
+
+        var result = Convert.ToInt32(await command.ExecuteScalarAsync());
+        return result > 0;
+    }
+
+    private async Task SaveDataToTables(ImportData individualPerson)
     {
 
         await using (var connection = new MySqlConnection(Config.DbConnectionString))
