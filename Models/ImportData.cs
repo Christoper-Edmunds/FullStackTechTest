@@ -1,12 +1,36 @@
-﻿namespace Models
+﻿using System.Text.Json.Serialization;
+
+namespace Models
 {
-    internal class ImportData
+    public partial class ImportPerson
     {
-        public string firstName { get; set; }
-        public string lastName { get; set; }
-        public int GMC { get; set; }
-        public string line1 { get; set; }
-        public string city { get; set; }
-        public string postcode { get; set; }
+        [JsonPropertyName("firstName")]
+        public string FirstName { get; set; }
+
+        [JsonPropertyName("lastName")]
+        public string LastName { get; set; }
+
+        [JsonPropertyName("GMC")]
+        public long Gmc { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName("address")]
+        public ImportAddress[] Address { get; set; }
+    }
+
+    public partial class ImportAddress
+    {
+
+        public string PersonID { get; set; }
+
+        [JsonPropertyName("line1")]
+        public string Line1 { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName("city")]
+        public string City { get; set; }
+
+        [JsonPropertyName("postcode")]
+        public string Postcode { get; set; }
     }
 }

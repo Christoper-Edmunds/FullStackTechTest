@@ -1,12 +1,6 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Text;
-using Models;
+﻿using Models;
 using MySql.Data.MySqlClient;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using static DAL.UploadRepository;
-using System;
 
 
 namespace DAL;
@@ -17,7 +11,7 @@ public class UploadRepository : IUploadRepository
         string fileName = @"C:\Users\crris\source\repos\FullStackTechTest\data.json";
         using FileStream openStream = File.OpenRead(fileName);
 
-        ImportData[] importData = JsonSerializer.Deserialize<ImportData[]>(openStream);
+        ImportPerson[] importData = JsonSerializer.Deserialize<ImportPerson[]>(openStream);
 
         foreach (var individualPerson in importData)
         {
@@ -32,7 +26,7 @@ public class UploadRepository : IUploadRepository
         }
 
     }
-    private async Task<bool> DoesPersonExist(ImportData individualPerson)
+    private async Task<bool> DoesPersonExist(ImportPerson individualPerson)
     {
         const string checkPersonSql = @"
                 SELECT COUNT(1)
@@ -51,7 +45,7 @@ public class UploadRepository : IUploadRepository
         return result > 0;
     }
 
-    private async Task SaveDataToTables(ImportData individualPerson)
+    private async Task SaveDataToTables(ImportPerson individualPerson)
     {
 
         await using (var connection = new MySqlConnection(Config.DbConnectionString))
@@ -103,37 +97,4 @@ public class UploadRepository : IUploadRepository
         }
 
     }
-
-    public partial class ImportData //Move me to models
-    {
-        [JsonPropertyName("firstName")]
-        public string FirstName { get; set; }
-
-        [JsonPropertyName("lastName")]
-        public string LastName { get; set; }
-
-        [JsonPropertyName("GMC")]
-        public long Gmc { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonPropertyName("address")]
-        public Address[] Address { get; set; }
-    }
-
-    public partial class Address //Move me to models 
-    {
-        
-        public string PersonID { get; set; }
-
-        [JsonPropertyName("line1")]
-        public string Line1 { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonPropertyName("city")]
-        public string City { get; set; }
-
-        [JsonPropertyName("postcode")]
-        public string Postcode { get; set; }
-    }
-
 }
