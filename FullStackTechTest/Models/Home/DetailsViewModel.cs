@@ -11,6 +11,8 @@ public class DetailsViewModel
     public List<Specialities> Specialities { get; set; }
     public List<Specialities> AllSpecialities { get; set; }
     public List<SelectListItem> SpecialitiesSelectList { get; set; }
+    public List<SelectListItem> AllSpecialitiesSelectList { get; set; }
+
 
 
 
@@ -25,6 +27,7 @@ public class DetailsViewModel
             Specialities = await specialitiesRepository.ListAllSpecialitiesByIdAsync(personId),
             AllSpecialities = await specialitiesRepository.ListAllSpecialitiesAsync(),
             SpecialitiesSelectList = new List<SelectListItem>(),
+            AllSpecialitiesSelectList = new List<SelectListItem>(),
             IsEditing = isEditing
         };
         return model;

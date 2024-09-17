@@ -48,6 +48,23 @@ public class HomeController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var model = await DetailsViewModel.CreateAsync(id, true, _personRepository, _addressRepository, _specialityRepository);
+
+        model.SpecialitiesSelectList = model.Specialities
+            .Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.SpecialityName
+            })
+            .ToList();
+
+        model.AllSpecialitiesSelectList = model.AllSpecialities
+            .Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.SpecialityName
+            })
+            .ToList();
+
         return View("Details", model);
     }
 
@@ -78,19 +95,19 @@ public class HomeController : Controller
         return RedirectToAction("Upload");
     }
 
-    public async Task<IActionResult> GetAllSpecialities()
+    [HttpPost]
+    public async Task<IActionResult> RemoveSpeciality(int id, [FromForm] DetailsViewModel model)
     {
-        var specialities = await _specialityRepository.ListAllSpecialitiesAsync();
 
-        return View(specialities);
 
+        return RedirectToAction("Details", new { id = model.Person.Id });
     }
 
-    public async Task<IActionResult> GetPersonsSpecialities(int id)
+    [HttpPost]
+    public async Task<IActionResult> AddSpecialitys(int id, [FromForm] DetailsViewModel model)
     {
-        var specialities = await _specialityRepository.ListAllSpecialitiesByIdAsync(id);
 
-        return View(specialities);
+        return RedirectToAction("Details", new { id = model.Person.Id });
     }
 
 
