@@ -10,6 +10,8 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IUploadRepository, UploadRepository > ();
+builder.Services.AddScoped<ISpecialityRepository, SpecialitiesRepository>();
+
 
 
 var app = builder.Build();

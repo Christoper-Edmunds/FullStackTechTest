@@ -5,6 +5,6 @@ namespace DAL
     public interface ISpecialityRepository
     {
         Task<List<Specialities>> ListAllSpecialitiesAsync();
-        Task<List<string>> ListAllSpecialitiesByIdAsync(int personId);
+        Task<List<Specialities>> ListAllSpecialitiesByIdAsync(int personId);
     }
 }

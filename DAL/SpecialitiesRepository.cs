@@ -35,20 +35,20 @@ namespace DAL
         }
 
 
-        public async Task<List<string>> ListAllSpecialitiesByIdAsync(int personId)
+        public async Task<List<Specialities>> ListAllSpecialitiesByIdAsync(int personId)
         {
-            var specialitiesList = new List<string>();
+            var specialitiesList = new List<Specialities>();
 
             await using (var connection = new MySqlConnection(Config.DbConnectionString))
             {
                 await connection.OpenAsync();
 
                 const string listSpecialitiesByIdSQL = @"
-                    SELECT Specialities.SpecialityName
-                    FROM Specialities
-                    JOIN PeopleSpecialitiesLinkTable ON Specialities.Id = PeopleSpecialitiesLinkTable.SpecialityID
-                    JOIN People ON PeopleSpecialitiesLinkTable.PersonID = People.Id
-                    WHERE People.Id = @personId;";
+                SELECT Specialities.Id, Specialities.SpecialityName
+                FROM Specialities
+                JOIN PeopleSpecialitiesLinkTable ON Specialities.Id = PeopleSpecialitiesLinkTable.SpecialityID
+                JOIN People ON PeopleSpecialitiesLinkTable.PersonID = People.Id
+                WHERE People.Id = @personId;";
 
                 await using (var command = new MySqlCommand(listSpecialitiesByIdSQL, connection))
                 {
@@ -57,7 +57,11 @@ namespace DAL
                     var reader = await command.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
                     {
-                        specialitiesList.Add(reader.GetString("SpecialityName"));
+                        specialitiesList.Add(new Specialities
+                        {
+                            Id = reader.GetInt32("Id"),
+                            SpecialityName = reader.GetString("SpecialityName")
+                        });
                     }
                 }
             }
