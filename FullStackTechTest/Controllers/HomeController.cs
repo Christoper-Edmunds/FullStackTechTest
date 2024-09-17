@@ -98,14 +98,18 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> RemoveSpeciality(int id, [FromForm] DetailsViewModel model)
     {
+        var selectedSpeciality = model.SelectedSpeciality;
+
 
 
         return RedirectToAction("Details", new { id = model.Person.Id });
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddSpecialitys(int id, [FromForm] DetailsViewModel model)
+    public async Task<IActionResult> AddSpeciality(int id, [FromForm] DetailsViewModel model)
     {
+        var selectedSpeciality = model.SelectedSpecialityToAdd;
+
 
         return RedirectToAction("Details", new { id = model.Person.Id });
     }
