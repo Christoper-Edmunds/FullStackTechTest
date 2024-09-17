@@ -51,6 +51,15 @@
             <label>Postcode:</label>
             <input type="text" name="address.postcode" value="@Model.Address.Postcode" class="@(Model.IsEditing ? "form-control" : "form-control-plaintext")" @(Model.IsEditing ? "" : "readonly")/>
         </div>
+        <div>
+            <label for="specialities">Users Specialities:</label>
+            <select id="specialities" name="specialities">
+                @foreach (var speciality in Model.SpecialitiesSelectList)
+                {
+                    <option value="@speciality.Value">@speciality.Text</option>
+                }
+            </select>
+        </div>
         
         @if (Model.IsEditing)
         {

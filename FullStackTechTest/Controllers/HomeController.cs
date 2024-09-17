@@ -3,6 +3,7 @@ using DAL;
 using Microsoft.AspNetCore.Mvc;
 using FullStackTechTest.Models.Home;
 using FullStackTechTest.Models.Shared;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace FullStackTechTest.Controllers;
 
@@ -32,6 +33,15 @@ public class HomeController : Controller
     public async Task<IActionResult> Details(int id)
     {
         var model = await DetailsViewModel.CreateAsync(id, false, _personRepository, _addressRepository, _specialityRepository);
+
+        model.SpecialitiesSelectList = model.Specialities
+        .Select(s => new SelectListItem
+        {
+            Value = s.Id.ToString(),
+            Text = s.SpecialityName
+        })
+        .ToList();
+
         return View(model);
     }
 

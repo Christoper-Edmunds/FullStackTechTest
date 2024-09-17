@@ -1,4 +1,5 @@
 using DAL;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Models;
 
 namespace FullStackTechTest.Models.Home;
@@ -9,6 +10,8 @@ public class DetailsViewModel
     public Address Address { get; set; }
     public List<Specialities> Specialities { get; set; }
     public List<Specialities> AllSpecialities { get; set; }
+    public List<SelectListItem> SpecialitiesSelectList { get; set; }
+
 
 
     public bool IsEditing { get; set; }
@@ -21,6 +24,7 @@ public class DetailsViewModel
             Address = await addressRepository.GetForPersonIdAsync(personId),
             Specialities = await specialitiesRepository.ListAllSpecialitiesByIdAsync(personId),
             AllSpecialities = await specialitiesRepository.ListAllSpecialitiesAsync(),
+            SpecialitiesSelectList = new List<SelectListItem>(),
             IsEditing = isEditing
         };
         return model;
