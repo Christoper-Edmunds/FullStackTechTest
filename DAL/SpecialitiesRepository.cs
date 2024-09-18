@@ -69,6 +69,63 @@ namespace DAL
             return specialitiesList;
         }
 
+        public async Task SaveSpecialitiesToLinkTable(int personId, int specialityId)
+        {
+            await using (var connection = new MySqlConnection(Config.DbConnectionString))
+            {
+                await connection.OpenAsync();
+                using var transaction = await connection.BeginTransactionAsync();
+
+                try
+                {
+                    var insertLinkTableSql = @"
+                    INSERT INTO peoplespecialitieslinktable (PersonID, SpecialityID)
+                    VALUES (@personId, @specialityId);";
+
+                    var linkTableCommand = new MySqlCommand(insertLinkTableSql, connection, transaction);
+                    linkTableCommand.Parameters.AddWithValue("@personId", personId);
+                    linkTableCommand.Parameters.AddWithValue("@specialityId", specialityId);
+
+                    await linkTableCommand.ExecuteNonQueryAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"An error occurred: {ex.Message}");
+                }
+            }
+        }
+
+        public async Task RemoveSpecialitiesFromLinkTable(int personId, int specialityId)
+        {
+            await using (var connection = new MySqlConnection(Config.DbConnectionString))
+            {
+                await connection.OpenAsync();
+                using var transaction = await connection.BeginTransactionAsync();
+
+                try
+                {
+                    var deleteLinkTableSql = @"
+                    DELETE FROM peoplespecialitieslinktable
+                    WHERE PersonID = @personId
+                    AND SpecialityID = @specialityId;";
+
+                    var linkTableCommand = new MySqlCommand(deleteLinkTableSql, connection, transaction);
+                    linkTableCommand.Parameters.AddWithValue("@personId", personId);
+                    linkTableCommand.Parameters.AddWithValue("@specialityId", specialityId);
+
+                    await linkTableCommand.ExecuteNonQueryAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"An error occurred: {ex.Message}");
+                }
+            }
+        }
+
         private Specialities PopulateSpeciality(IDataRecord data)
         {
             var speciality = new Specialities

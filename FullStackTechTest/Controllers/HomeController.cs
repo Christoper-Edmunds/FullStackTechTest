@@ -100,8 +100,7 @@ public class HomeController : Controller
     {
         var selectedSpeciality = model.SelectedSpeciality;
 
-
-
+        await _specialityRepository.RemoveSpecialitiesFromLinkTable(id, selectedSpeciality);        
         return RedirectToAction("Details", new { id = model.Person.Id });
     }
 
@@ -110,6 +109,7 @@ public class HomeController : Controller
     {
         var selectedSpeciality = model.SelectedSpecialityToAdd;
 
+        await _specialityRepository.SaveSpecialitiesToLinkTable(id, selectedSpeciality);
 
         return RedirectToAction("Details", new { id = model.Person.Id });
     }
