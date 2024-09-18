@@ -71,6 +71,25 @@ namespace DAL
 
         public async Task SaveSpecialitiesToLinkTable(int personId, int specialityId)
         {
+            await ExecuteLinkTableCommandWithDuplicateCheckAsync(
+                @"
+                INSERT INTO peoplespecialitieslinktable (PersonID, SpecialityID)
+                VALUES (@personId, @specialityId);",
+                personId, specialityId);
+        }
+
+        public async Task RemoveSpecialitiesFromLinkTable(int personId, int specialityId)
+        {
+            await ExecuteLinkTableCommandAsync(
+                @"
+                DELETE FROM peoplespecialitieslinktable
+                WHERE PersonID = @personId
+                AND SpecialityID = @specialityId;",
+                personId, specialityId);
+        }
+
+        private async Task ExecuteLinkTableCommandWithDuplicateCheckAsync(string sql, int personId, int specialityId)
+        {
             await using (var connection = new MySqlConnection(Config.DbConnectionString))
             {
                 await connection.OpenAsync();
@@ -78,15 +97,31 @@ namespace DAL
 
                 try
                 {
-                    var insertLinkTableSql = @"
-                    INSERT INTO peoplespecialitieslinktable (PersonID, SpecialityID)
-                    VALUES (@personId, @specialityId);";
+                    var checkDuplicateSql = @"
+                    SELECT COUNT(1)
+                    FROM peoplespecialitieslinktable
+                    WHERE PersonID = @personId
+                    AND SpecialityID = @specialityId;";
 
-                    var linkTableCommand = new MySqlCommand(insertLinkTableSql, connection, transaction);
-                    linkTableCommand.Parameters.AddWithValue("@personId", personId);
-                    linkTableCommand.Parameters.AddWithValue("@specialityId", specialityId);
+                    var checkDuplicateCommand = new MySqlCommand(checkDuplicateSql, connection, transaction);
+                    checkDuplicateCommand.Parameters.AddWithValue("@personId", personId);
+                    checkDuplicateCommand.Parameters.AddWithValue("@specialityId", specialityId);
 
-                    await linkTableCommand.ExecuteNonQueryAsync();
+                    var exists = (long)await checkDuplicateCommand.ExecuteScalarAsync();
+
+                    if (exists == 0)
+                    {
+                        var command = new MySqlCommand(sql, connection, transaction);
+                        command.Parameters.AddWithValue("@personId", personId);
+                        command.Parameters.AddWithValue("@specialityId", specialityId);
+
+                        await command.ExecuteNonQueryAsync();
+                    }
+                    else
+                    {
+                        Console.WriteLine("record already exists");
+                    }
+
                     await transaction.CommitAsync();
                 }
                 catch (Exception ex)
@@ -97,7 +132,7 @@ namespace DAL
             }
         }
 
-        public async Task RemoveSpecialitiesFromLinkTable(int personId, int specialityId)
+        private async Task ExecuteLinkTableCommandAsync(string sql, int personId, int specialityId)
         {
             await using (var connection = new MySqlConnection(Config.DbConnectionString))
             {
@@ -106,16 +141,11 @@ namespace DAL
 
                 try
                 {
-                    var deleteLinkTableSql = @"
-                    DELETE FROM peoplespecialitieslinktable
-                    WHERE PersonID = @personId
-                    AND SpecialityID = @specialityId;";
+                    var command = new MySqlCommand(sql, connection, transaction);
+                    command.Parameters.AddWithValue("@personId", personId);
+                    command.Parameters.AddWithValue("@specialityId", specialityId);
 
-                    var linkTableCommand = new MySqlCommand(deleteLinkTableSql, connection, transaction);
-                    linkTableCommand.Parameters.AddWithValue("@personId", personId);
-                    linkTableCommand.Parameters.AddWithValue("@specialityId", specialityId);
-
-                    await linkTableCommand.ExecuteNonQueryAsync();
+                    await command.ExecuteNonQueryAsync();
                     await transaction.CommitAsync();
                 }
                 catch (Exception ex)
