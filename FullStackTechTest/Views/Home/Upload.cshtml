@@ -6,23 +6,36 @@
 
 <div class="container">
     <a href="@Url.Action("Index")" class="btn btn-primary" role="button">Back</a>
-    <a href="@Url.Action("DeserializeJsonResult")" class="btn btn-primary" role="button">Upload External Data</a>
+    <a href="@Url.Action("DeserializeJsonResult")" class="btn btn-primary" role="button">Upload External Data </a>
 
-    <form asp-action="DeleteExistingSpeciality" asp-controller="Home" method="post">
+    <div>
+        <label for="specialities">Specialities:</label>
+        <select id="selectedSpeciality" name="specialitiesDropdown" asp-for="SelectedSpeciality" style="margin-top: 20px;" onchange="updateHiddenFields(this.value)">
+            @foreach (var speciality in Model.SpecialitiesSelectList)
+            {
+                <option value="@speciality.Value" selected="@(speciality.Value == Model.SelectedSpeciality.ToString())">
+                    @speciality.Text
+                </option>
+            }
+        </select>
+    </div>
+
+    <form asp-action="DeleteExistingSpeciality" asp-controller="Home" method="post" id="deleteForm">
+        <input type="hidden" id="deleteSpecialityId" name="id" value="@Model.SelectedSpeciality" />
         <div>
-            <label for="specialities">Specialities:</label>
-            <select id="selectedSpeciality" name="id" asp-for="SelectedSpeciality">
-                @foreach (var speciality in Model.SpecialitiesSelectList)
-                {
-                    <option value="@speciality.Value" selected="@(speciality.Value == Model.SelectedSpeciality.ToString())">
-                        @speciality.Text
-                    </option>
-                }
-            </select>
+            <input type="submit" value="Remove Speciality" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 20px;" />
+        </div>
+    </form>
+
+    <form asp-action="EditExistingSpeciality" asp-controller="Home" method="post" id="editForm">
+        <input type="hidden" id="editSpecialityId" name="id" value="@Model.SelectedSpeciality" />
+        <div>
+            <label for="newSpecialityName">Edit Speciality Name:</label>
+            <input type="text" id="newSpecialityName" name="specialityName" />
         </div>
 
         <div>
-            <input type="submit" value="Remove Speciality" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 20px;" />
+            <input type="submit" value="Update Speciality" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 20px;" />
         </div>
     </form>
 
@@ -33,10 +46,15 @@
         </div>
 
         <div class="form-group">
-            <input type="submit" value="Save Speciality" class="btn btn-primary" />
+            <input type="submit" value="Save Speciality" class="btn btn-primary" style="margin-top: 20px;" />
         </div>
     </form>
 
-
-
 </div>
+
+<script>
+    function updateHiddenFields(selectedValue) {
+        document.getElementById('deleteSpecialityId').value = selectedValue;
+        document.getElementById('editSpecialityId').value = selectedValue;
+    }
+</script>

@@ -140,13 +140,18 @@ public class HomeController : Controller
         return RedirectToAction("Upload");
     }
 
-    //[HttpPost]
-    //public async Task<IActionResult> EditExistingSpeciality(Specialities speciality, [FromForm] UploadViewModel model)
-    //{
-    //    var selectedSpeciality = model.;
+    [HttpPost]
+    public async Task<IActionResult> EditExistingSpeciality(int id, [FromForm] string specialityName)
+    {
+        var specialityToUpdate = new Specialities
+        {
+            Id = id,
+            SpecialityName = specialityName
+        };
 
-    //    await _specialityRepository.RemoveSpecialitiesFromLinkTable(id, selectedSpeciality);
-    //    return RedirectToAction("Upload", new { id = model.Person.Id });
-    //}
+        await _specialityRepository.UpdateSpecialityAsync(specialityToUpdate);
+
+        return RedirectToAction("Upload");
+    }
 
 }

@@ -11,6 +11,5 @@ namespace DAL
         Task SaveSpecialityToTableAsync(string speciality);
         Task DeleteSpecialityFromTableAsync(int specialityId);
         Task UpdateSpecialityAsync(Specialities speciality);
-
     }
 }

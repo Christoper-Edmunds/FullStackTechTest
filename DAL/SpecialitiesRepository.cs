@@ -260,7 +260,7 @@ namespace DAL
                     var checkIfExistsSql = @"
                     SELECT COUNT(1)
                     FROM specialities
-                    WHERE SpecialityID = @specialityId";
+                    WHERE Id = @specialityId";
 
                     var checkIfExistsCommand = new MySqlCommand(checkIfExistsSql, connection, transaction);
                     checkIfExistsCommand.Parameters.AddWithValue("@specialityId", speciality.Id);
@@ -272,7 +272,7 @@ namespace DAL
                         const string updateSpecialitySql = @"
                         UPDATE specialities
                         SET SpecialityName = @specialityName
-                        WHERE SpecialityID = @specialityId;";
+                        WHERE Id = @specialityId;";
 
                         var updateCommand = new MySqlCommand(updateSpecialitySql, connection, transaction);
                         updateCommand.Parameters.AddWithValue("@specialityName", speciality.SpecialityName);
