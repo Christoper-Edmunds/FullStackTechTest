@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using FullStackTechTest.Models.Home;
 using FullStackTechTest.Models.Shared;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Models;
 
 namespace FullStackTechTest.Controllers;
 
@@ -84,7 +85,14 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Upload()
     {
-        var model = await UploadViewModel.CreateAsync();
+        var model = await UploadViewModel.CreateAsync(_specialityRepository);
+
+        model.SpecialitiesSelectList = model.Specialities.Select(s => new SelectListItem
+        {
+            Value = s.Id.ToString(),
+            Text = s.SpecialityName 
+        }).ToList();
+
         return View(model);
     }
 
@@ -114,5 +122,31 @@ public class HomeController : Controller
         return RedirectToAction("Details", new { id = model.Person.Id });
     }
 
+    [HttpPost]
+    public async Task<IActionResult> DeleteExistingSpeciality(int id)
+    {
+        await _specialityRepository.DeleteSpecialityFromTableAsync(id);
+        return RedirectToAction("Upload");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddNewSpeciality(string speciality, [FromForm] UploadViewModel model)
+    {
+        if (!string.IsNullOrWhiteSpace(speciality))
+        {
+            await _specialityRepository.SaveSpecialityToTableAsync(speciality);
+        }
+
+        return RedirectToAction("Upload");
+    }
+
+    //[HttpPost]
+    //public async Task<IActionResult> EditExistingSpeciality(Specialities speciality, [FromForm] UploadViewModel model)
+    //{
+    //    var selectedSpeciality = model.;
+
+    //    await _specialityRepository.RemoveSpecialitiesFromLinkTable(id, selectedSpeciality);
+    //    return RedirectToAction("Upload", new { id = model.Person.Id });
+    //}
 
 }

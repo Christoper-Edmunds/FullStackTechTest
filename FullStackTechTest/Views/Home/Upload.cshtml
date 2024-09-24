@@ -1,4 +1,4 @@
-﻿@model FullStackTechTest.Models.Home.IndexViewModel
+﻿@model FullStackTechTest.Models.Home.UploadViewModel
 
 @{
     ViewData["Title"] = "Upload Data";
@@ -7,5 +7,36 @@
 <div class="container">
     <a href="@Url.Action("Index")" class="btn btn-primary" role="button">Back</a>
     <a href="@Url.Action("DeserializeJsonResult")" class="btn btn-primary" role="button">Upload External Data</a>
+
+    <form asp-action="DeleteExistingSpeciality" asp-controller="Home" method="post">
+        <div>
+            <label for="specialities">Specialities:</label>
+            <select id="selectedSpeciality" name="id" asp-for="SelectedSpeciality">
+                @foreach (var speciality in Model.SpecialitiesSelectList)
+                {
+                    <option value="@speciality.Value" selected="@(speciality.Value == Model.SelectedSpeciality.ToString())">
+                        @speciality.Text
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <input type="submit" value="Remove Speciality" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 20px;" />
+        </div>
+    </form>
+
+    <form asp-action="AddNewSpeciality" method="post">
+        <div class="form-group">
+            <label for="speciality">Enter New Speciality</label>
+            <input type="text" name="speciality" id="speciality" class="form-control" placeholder="Enter speciality name" required />
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Save Speciality" class="btn btn-primary" />
+        </div>
+    </form>
+
+
 
 </div>
