@@ -1,5 +1,5 @@
 
-###THis table is created to store specialities recorded for the various users 
+--THis table is created to store specialities recorded for the various users 
 
 CREATE TABLE specialities (
     Id INT PRIMARY KEY AUTO_INCREMENT,
@@ -18,7 +18,7 @@ INSERT INTO specialities (SpecialityName) VALUES ('Orthopaedic Surgery');
 INSERT INTO specialities (SpecialityName) VALUES ('Psychiatry');
 
 
-###THis table is created to act as a link table for the many to many relationship that people and specialities table has
+--THis table is created to act as a link table for the many to many relationship that people and specialities table has
 
 CREATE TABLE peoplespecialitieslinktable (
     Id INT PRIMARY KEY AUTO_INCREMENT,
@@ -28,3 +28,14 @@ CREATE TABLE peoplespecialitieslinktable (
     FOREIGN KEY (SpecialityID) REFERENCES specialities(Id)
 );
 
+
+
+--Rewritten link table to enable cascade deletes 
+
+CREATE TABLE peoplespecialitieslinktable (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    PersonID INT,
+    SpecialityID INT,
+    FOREIGN KEY (PersonID) REFERENCES people(Id),
+    FOREIGN KEY (SpecialityID) REFERENCES specialities(Id) ON DELETE CASCADE
+);
