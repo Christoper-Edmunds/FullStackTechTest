@@ -22,9 +22,14 @@
         <select id="selectedSpeciality" name="specialitiesDropdown" asp-for="SelectedSpeciality" style="margin-top: 20px;" onchange="updateHiddenFields(this.value)">
             @foreach (var speciality in Model.SpecialitiesSelectList)
             {
-                <option value="@speciality.Value" selected="@(speciality.Value == Model.SelectedSpeciality.ToString())">
-                    @speciality.Text
-                </option>
+                if (speciality.Value == Model.SelectedSpeciality.ToString())
+                {
+                    <option value="@speciality.Value" selected>@speciality.Text</option>
+                }
+                else
+                {
+                    <option value="@speciality.Value">@speciality.Text</option>
+                }
             }
         </select>
     </div>
@@ -62,6 +67,11 @@
 </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectedValue = document.getElementById('selectedSpeciality').value;
+        updateHiddenFields(selectedValue);
+    });
+
     function updateHiddenFields(selectedValue) {
         document.getElementById('deleteSpecialityId').value = selectedValue;
         document.getElementById('editSpecialityId').value = selectedValue;
