@@ -39,3 +39,11 @@ CREATE TABLE peoplespecialitieslinktable (
     FOREIGN KEY (PersonID) REFERENCES people(Id),
     FOREIGN KEY (SpecialityID) REFERENCES specialities(Id) ON DELETE CASCADE
 );
+
+--SQL Query to amend the tables to cascade results 
+
+ALTER TABLE peoplespecialitieslinktable
+ADD CONSTRAINT fk_speciality
+FOREIGN KEY (SpecialityID) 
+REFERENCES specialities(Id)
+ON DELETE CASCADE;
