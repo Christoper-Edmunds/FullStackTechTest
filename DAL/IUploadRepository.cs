@@ -1,9 +1,11 @@
 using Models;
 using static DAL.UploadRepository;
+using Microsoft.AspNetCore.Http;
+
 
 namespace DAL;
 
 public interface IUploadRepository
 {
-    Task DeserializeJsonResult();
+    Task DeserializeJsonResult(IFormFile fileUpload);
 }

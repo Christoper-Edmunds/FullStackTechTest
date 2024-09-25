@@ -1,30 +1,42 @@
 ﻿using Models;
 using MySql.Data.MySqlClient;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
+
 
 
 namespace DAL;
 public class UploadRepository : IUploadRepository
 {
-    public async Task DeserializeJsonResult()
+    public async Task DeserializeJsonResult(IFormFile fileUpload)
     {
-        string fileName = @"C:\Users\crris\source\repos\FullStackTechTest\data.json";
-        using FileStream openStream = File.OpenRead(fileName);
-
-        ImportPerson[] importData = JsonSerializer.Deserialize<ImportPerson[]>(openStream);
-
-        foreach (var individualPerson in importData)
+        try
         {
-            if (!await DoesPersonExist(individualPerson))
+            using var stream = fileUpload.OpenReadStream();
+            ImportPerson[] importData = await JsonSerializer.DeserializeAsync<ImportPerson[]>(stream);
+
+            if (importData == null)
             {
-                await SaveDataToTables(individualPerson);
+                throw new Exception("Invalid JSON content");
             }
-            else
+
+            foreach (var individualPerson in importData)
             {
-                Console.WriteLine($"Person {individualPerson.FirstName} {individualPerson.LastName} with GMC {individualPerson.Gmc} already exists.");
+                if (!await DoesPersonExist(individualPerson))
+                {
+                    await SaveDataToTables(individualPerson);
+                }
+                else
+                {
+                    Console.WriteLine($"Person {individualPerson.FirstName} {individualPerson.LastName} with GMC {individualPerson.Gmc} already exists.");
+                }
             }
         }
-
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Error deserializing JSON file: {ex.Message}");
+            throw;
+        }
     }
     private async Task<bool> DoesPersonExist(ImportPerson individualPerson)
     {

@@ -6,7 +6,16 @@
 
 <div class="container">
     <a href="@Url.Action("Index")" class="btn btn-primary" role="button">Back</a>
-    <a href="@Url.Action("DeserializeJsonResult")" class="btn btn-primary" role="button">Upload External Data </a>
+    <div>
+        <form asp-action="DeserializeJsonResult" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="fileUpload">Choose a JSON file</label>
+                <input type="file" name="fileUpload" id="fileUpload" accept=".json" />
+            </div>
+
+            <button type="submit">Upload File</button>
+        </form>
+    </div>
 
     <div>
         <label for="specialities">Specialities:</label>

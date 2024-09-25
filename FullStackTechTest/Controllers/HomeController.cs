@@ -96,9 +96,36 @@ public class HomeController : Controller
         return View(model);
     }
 
-    public async Task<IActionResult> DeserializeJsonResult()
+    [HttpPost]
+    public async Task<IActionResult> DeserializeJsonResult(IFormFile fileUpload)
     {
-        await _uploadRepository.DeserializeJsonResult();
+        if (fileUpload == null || fileUpload.Length == 0)
+        {
+            ModelState.AddModelError("File", "Please upload a valid file.");
+            return RedirectToAction("Upload");
+        }
+
+        var fileExtension = Path.GetExtension(fileUpload.FileName);
+        if (fileExtension != ".json")
+        {
+            ModelState.AddModelError("File", "Invalid file type. Only JSON files are allowed.");
+            return RedirectToAction("Upload");
+        }
+
+        if (fileUpload.ContentType != "application/json")
+        {
+            ModelState.AddModelError("File", "Invalid file content type. Only JSON files are allowed.");
+            return RedirectToAction("Upload");
+        }
+
+        const int maxFileSize = 2 * 1024 * 1024; 
+        if (fileUpload.Length > maxFileSize)
+        {
+            ModelState.AddModelError("File", "File size exceeds the 2 MB limit.");
+            return RedirectToAction("Upload");
+        }
+
+        await _uploadRepository.DeserializeJsonResult(fileUpload);
 
         return RedirectToAction("Upload");
     }
