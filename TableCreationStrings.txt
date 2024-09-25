@@ -1,0 +1,49 @@
+
+--THis table is created to store specialities recorded for the various users 
+
+CREATE TABLE specialities (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    SpecialityName VARCHAR(50) NOT NULL
+);
+
+INSERT INTO specialities (SpecialityName) VALUES ('Anaesthetics');
+INSERT INTO specialities (SpecialityName) VALUES ('Cardiology');
+INSERT INTO specialities (SpecialityName) VALUES ('Dermatology');
+INSERT INTO specialities (SpecialityName) VALUES ('Emergency Medicine');
+INSERT INTO specialities (SpecialityName) VALUES ('General Practice (GP)');
+INSERT INTO specialities (SpecialityName) VALUES ('Neurology');
+INSERT INTO specialities (SpecialityName) VALUES ('Obstetrics and Gynaecology');
+INSERT INTO specialities (SpecialityName) VALUES ('Ophthalmology');
+INSERT INTO specialities (SpecialityName) VALUES ('Orthopaedic Surgery');
+INSERT INTO specialities (SpecialityName) VALUES ('Psychiatry');
+
+
+--THis table is created to act as a link table for the many to many relationship that people and specialities table has
+
+CREATE TABLE peoplespecialitieslinktable (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    PersonID INT,
+    SpecialityID INT,
+    FOREIGN KEY (PersonID) REFERENCES people(Id),
+    FOREIGN KEY (SpecialityID) REFERENCES specialities(Id)
+);
+
+
+
+--Rewritten link table to enable cascade deletes 
+
+CREATE TABLE peoplespecialitieslinktable (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    PersonID INT,
+    SpecialityID INT,
+    FOREIGN KEY (PersonID) REFERENCES people(Id),
+    FOREIGN KEY (SpecialityID) REFERENCES specialities(Id) ON DELETE CASCADE
+);
+
+--SQL Query to amend the tables to cascade results 
+
+ALTER TABLE peoplespecialitieslinktable
+ADD CONSTRAINT fk_speciality
+FOREIGN KEY (SpecialityID) 
+REFERENCES specialities(Id)
+ON DELETE CASCADE;

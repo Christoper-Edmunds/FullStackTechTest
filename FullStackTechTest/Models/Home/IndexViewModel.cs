@@ -4,6 +4,7 @@ using Models;
 namespace FullStackTechTest.Models.Home;
 
 public class IndexViewModel
+
 {
     public List<Person> PeopleList { get; set; }
 

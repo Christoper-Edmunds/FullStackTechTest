@@ -1,0 +1,79 @@
+﻿@model FullStackTechTest.Models.Home.UploadViewModel
+
+@{
+    ViewData["Title"] = "Upload Data";
+}
+
+<div class="container">
+    <a href="@Url.Action("Index")" class="btn btn-primary" role="button">Back</a>
+    <div>
+        <form asp-action="DeserializeJsonResult" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="fileUpload">Choose a JSON file</label>
+                <input type="file" name="fileUpload" id="fileUpload" accept=".json" />
+            </div>
+
+            <button type="submit">Upload File</button>
+        </form>
+    </div>
+
+    <div>
+        <label for="specialities">Specialities:</label>
+        <select id="selectedSpeciality" name="specialitiesDropdown" asp-for="SelectedSpeciality" style="margin-top: 20px;" onchange="updateHiddenFields(this.value)">
+            @foreach (var speciality in Model.SpecialitiesSelectList)
+            {
+                if (speciality.Value == Model.SelectedSpeciality.ToString())
+                {
+                    <option value="@speciality.Value" selected>@speciality.Text</option>
+                }
+                else
+                {
+                    <option value="@speciality.Value">@speciality.Text</option>
+                }
+            }
+        </select>
+    </div>
+
+    <form asp-action="DeleteExistingSpeciality" asp-controller="Home" method="post" id="deleteForm">
+        <input type="hidden" id="deleteSpecialityId" name="id" value="@Model.SelectedSpeciality" />
+        <div>
+            <input type="submit" value="Remove Speciality" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 20px;" />
+        </div>
+    </form>
+
+    <form asp-action="EditExistingSpeciality" asp-controller="Home" method="post" id="editForm">
+        <input type="hidden" id="editSpecialityId" name="id" value="@Model.SelectedSpeciality" />
+        <div>
+            <label for="newSpecialityName">Edit Speciality Name:</label>
+            <input type="text" id="newSpecialityName" name="specialityName" />
+        </div>
+
+        <div>
+            <input type="submit" value="Update Speciality" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 20px;" />
+        </div>
+    </form>
+
+    <form asp-action="AddNewSpeciality" method="post">
+        <div class="form-group">
+            <label for="speciality">Enter New Speciality</label>
+            <input type="text" name="speciality" id="speciality" class="form-control" placeholder="Enter speciality name" required />
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Save Speciality" class="btn btn-primary" style="margin-top: 20px;" />
+        </div>
+    </form>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectedValue = document.getElementById('selectedSpeciality').value;
+        updateHiddenFields(selectedValue);
+    });
+
+    function updateHiddenFields(selectedValue) {
+        document.getElementById('deleteSpecialityId').value = selectedValue;
+        document.getElementById('editSpecialityId').value = selectedValue;
+    }
+</script>

@@ -51,11 +51,43 @@
             <label>Postcode:</label>
             <input type="text" name="address.postcode" value="@Model.Address.Postcode" class="@(Model.IsEditing ? "form-control" : "form-control-plaintext")" @(Model.IsEditing ? "" : "readonly")/>
         </div>
+        <div>
+            <label for="specialities">Users Specialities:</label>
+            <select id="selectedSpeciality" name="SelectedSpeciality" asp-for="SelectedSpeciality">
+                @foreach (var speciality in Model.SpecialitiesSelectList)
+                {
+                    <option value="@speciality.Value" selected="@(speciality.Value == Model.SelectedSpeciality.ToString())">
+                        @speciality.Text
+                    </option>
+                }
+            </select>
+        </div>
         
         @if (Model.IsEditing)
         {
             <div>
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" formaction="@Url.Action("RemoveSpeciality", "Home", new { id = Model.Person.Id })" value="Remove Speciality" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 20px;" />
+            </div>
+
+            <div>
+                <label for="specialities">All Specialities:</label>
+                <select id="selectedSpeciality" name="SelectedSpecialityToAdd" asp-for="SelectedSpecialityToAdd">
+                    @foreach (var speciality in Model.AllSpecialitiesSelectList)
+                    {
+                        <option value="@speciality.Value" selected="@(speciality.Value == Model.SelectedSpecialityToAdd.ToString())">
+                            @speciality.Text
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <input type="submit" formaction="@Url.Action("AddSpeciality", "Home", new { id = Model.Person.Id })" value="Add Speciality" class="btn btn-primary" style="margin-top: 10px; margin-bottom: 20px;" />
+
+            </div>
+
+            <div>
+                <input type="submit" value="Save" class="btn btn-primary" style="margin-top: 20px; margin-bottom: 10px;" />
             </div>
         }
     }
